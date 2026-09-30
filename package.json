@@ -1,0 +1,18 @@
+{
+  "name": "phishguard-ai",
+  "version": "1.0.0",
+  "description": "PhishGuard AI - Unified Real-Time Fraud & Phishing Protection Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "cybersecurity",
+    "phishing",
+    "fraud-detection",
+    "ai"
+  ],
+  "author": "",
+  "license": "ISC"
+}

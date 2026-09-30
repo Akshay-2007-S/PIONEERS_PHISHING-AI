@@ -1,0 +1,65 @@
+{
+  "name": "PhishGuard AI — Cyber Security Suite",
+  "short_name": "PhishGuard AI",
+  "description": "Unified Real-Time Fraud, Phishing & Cyber Threat Protection Engine",
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "theme_color": "#020617",
+  "background_color": "#020617",
+  "lang": "en",
+  "categories": [
+    "security",
+    "utilities",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan & Analyze",
+      "short_name": "Scan",
+      "description": "Quickly scan suspicious links and messages",
+      "url": "/?action=scan",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Threat Graph",
+      "short_name": "Threats",
+      "description": "Inspect real-time threat intelligence",
+      "url": "/?action=threats",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

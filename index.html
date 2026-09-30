@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard AI — Unified Real-Time Fraud & Phishing Protection</title>
+  <meta name="description" content="PhishGuard AI protects you from phishing links, payment scams, and fraud across Email, WhatsApp, SMS, and the web in real time." />
+  <meta name="theme-color" content="#020617" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PhishGuard AI" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=2.5" />
+  <link rel="stylesheet" href="cyber.css?v=2.5" />
+</head>
+<body>
+  <!-- 3D CURSOR-REACTIVE BACKGROUND -->
+  <canvas id="bg-canvas"></canvas>
+  <div id="cursor-orb"></div>
+  <div id="cursor-trail-container"></div>
+
+  <!-- AUTH OVERLAY -->
+  <div id="auth-overlay" class="auth-overlay active">
+    <div class="auth-card" id="auth-card-3d">
+      <div class="auth-logo">
+        <div class="shield-icon pulse-ring">🛡️</div>
+        <h1>PhishGuard <span class="brand-ai">AI</span></h1>
+        <p>Unified Real-Time Fraud Protection</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+      <form id="auth-form" onsubmit="handleAuth(event)">
+        <div id="signup-name-field" class="form-group hidden">
+          <label>Full Name</label>
+          <input type="text" id="auth-name" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="auth-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary btn-auth" id="auth-submit-btn">
+          <span id="auth-btn-text">Login to PhishGuard</span>
+          <div class="btn-spinner hidden" id="auth-spinner"></div>
+        </button>
+        <div id="auth-message" class="auth-message hidden"></div>
+      </form>
+      <!-- Email Verification Banner -->
+      <div id="verify-banner" class="verify-banner hidden">
+        <div class="verify-icon">📧</div>
+        <div class="verify-text">
+          <strong>Verify your email</strong>
+          <span>A confirmation link was sent to <em id="verify-email"></em>. Click it to activate your account, then log in.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🛡️</div>
+        <span class="logo-text">PhishGuard <span class="brand-ai">AI</span></span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" id="nav-dashboard" onclick="switchPage('dashboard')">
+          <span class="nav-icon">🏠</span><span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item" id="nav-scan" onclick="switchPage('scan')">
+          <span class="nav-icon">🔍</span><span class="nav-label">Scan & Analyze</span>
+        </button>
+        <button class="nav-item" id="nav-email" onclick="switchPage('email')">
+          <span class="nav-icon">📧</span><span class="nav-label">Email Protection</span>
+        </button>
+        <button class="nav-item" id="nav-whatsapp" onclick="switchPage('whatsapp')">
+          <span class="nav-icon">💬</span><span class="nav-label">WhatsApp / SMS</span>
+        </button>
+        <button class="nav-item" id="nav-trustnetwork" onclick="switchPage('trustnetwork')">
+          <span class="nav-icon">🛡️</span><span class="nav-label">Trust Network</span>
+        </button>
+        <button class="nav-item" id="nav-browser" onclick="switchPage('browser')">
+          <span class="nav-icon">🌐</span><span class="nav-label">Browser Guard</span>
+        </button>
+        <button class="nav-item" id="nav-threats" onclick="switchPage('threats')">
+          <span class="nav-icon">🕸️</span><span class="nav-label">Threat Graph</span>
+        </button>
+        <button class="nav-item" id="nav-payments" onclick="switchPage('payments')">
+          <span class="nav-icon">📂</span><span class="nav-label">Payment Intel</span>
+        </button>
+        <button class="nav-item nav-item-special" id="nav-defenselab" onclick="switchPage('defenselab')">
+          <span class="nav-icon">🔬</span><span class="nav-label">Defense Lab (14)</span>
+        </button>
+        <button class="nav-item" id="nav-history" onclick="switchPage('history')">
+          <span class="nav-icon">📋</span><span class="nav-label">Scan History</span>
+        </button>
+        <button class="nav-item" id="nav-settings" onclick="switchPage('settings')">
+          <span class="nav-icon">⚙️</span><span class="nav-label">Settings</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info" id="user-info-sidebar">
+          <div class="user-avatar" id="user-avatar-sidebar">J</div>
+          <div class="user-details">
+            <span id="user-name-sidebar">John</span>
+            <span class="user-role">Protected</span>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Logout">⏻</button>
+      </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" id="hamburger-btn">☰</button>
+      <div class="topbar-center">
+        <div class="protection-status" id="protection-status">
+          <span class="status-dot active"></span>
+          <span>Protection Active</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="pwa-install-btn hidden" id="pwa-install-btn" title="Install PhishGuard AI Desktop App">
+          <span class="pwa-install-icon">⬇</span>
+          <span class="pwa-install-text">Install App</span>
+        </button>
+        <button class="icon-btn" id="notif-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔 <span class="notif-badge" id="notif-badge">3</span>
+        </button>
+        <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">🌙</button>
+      </div>
+    </header>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notif-panel hidden" id="notif-panel">
+      <div class="notif-header">
+        <h3>Notifications</h3>
+        <button onclick="clearNotifications()">Clear All</button>
+      </div>
+      <div id="notif-list"></div>
+    </div>
+
+    <!-- PAGES -->
+    <main class="main-content" id="main-content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <h2>Security Dashboard</h2>
+          <p>Your real-time protection overview</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card safe" data-tilt>
+            <div class="stat-icon-3d safe-3d">
+              <div class="orb-3d orb-safe"></div>
+              <svg viewBox="0 0 36 36" class="icon-svg"><path d="M18 3 L30 8 V18 C30 25.5 18 33 18 33 C18 33 6 25.5 6 18 V8 Z" fill="none" stroke="#00ff9c" stroke-width="2.5"/><polyline points="12,18 16,22 24,14" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-top-row">
+                <span class="stat-num" id="stat-safe">142</span>
+                <span class="stat-badge safe-badge">+14%</span>
+              </div>
+              <span class="stat-label">Safe Scans</span>
+              <svg class="stat-sparkline" viewBox="0 0 100 20"><path d="M0,14 Q15,18 30,12 T60,8 T80,14 T100,6" fill="none" stroke="#00ff9c" stroke-width="2" opacity="0.75"/></svg>
+            </div>
+          </div>
+          <div class="stat-card suspicious" data-tilt>
+            <div class="stat-icon-3d suspicious-3d">
+              <div class="orb-3d orb-suspicious"></div>
+              <svg viewBox="0 0 36 36" class="icon-svg"><circle cx="18" cy="18" r="13" fill="none" stroke="#ffe600" stroke-width="2.5"/><line x1="18" y1="10" x2="18" y2="20" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round"/><circle cx="18" cy="25" r="1.8" fill="#ffffff"/></svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-top-row">
+                <span class="stat-num" id="stat-suspicious">28</span>
+                <span class="stat-badge suspicious-badge">Review</span>
+              </div>
+              <span class="stat-label">Suspicious</span>
+              <svg class="stat-sparkline" viewBox="0 0 100 20"><path d="M0,16 Q20,10 40,15 T70,9 T85,13 T100,8" fill="none" stroke="#ffe600" stroke-width="2" opacity="0.75"/></svg>
+            </div>
+          </div>
+          <div class="stat-card fraud" data-tilt>
+            <div class="stat-icon-3d fraud-3d">
+              <div class="orb-3d orb-fraud"></div>
+              <svg viewBox="0 0 36 36" class="icon-svg"><polygon points="18,3 33,29 3,29" fill="none" stroke="#ff2d55" stroke-width="2.5" stroke-linejoin="round"/><line x1="18" y1="12" x2="18" y2="21" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round"/><circle cx="18" cy="25.5" r="1.8" fill="#ffffff"/></svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-top-row">
+                <span class="stat-num" id="stat-fraud">9</span>
+                <span class="stat-badge fraud-badge">Blocked</span>
+              </div>
+              <span class="stat-label">Frauds Blocked</span>
+              <svg class="stat-sparkline" viewBox="0 0 100 20"><path d="M0,18 Q15,16 30,12 T55,6 T75,14 T100,4" fill="none" stroke="#ff2d55" stroke-width="2" opacity="0.75"/></svg>
+            </div>
+          </div>
+          <div class="stat-card total" data-tilt>
+            <div class="stat-icon-3d total-3d">
+              <div class="orb-3d orb-total"></div>
+              <svg viewBox="0 0 36 36" class="icon-svg"><circle cx="18" cy="18" r="13" fill="none" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="6 3"/><circle cx="18" cy="18" r="6" fill="rgba(0,240,255,0.25)" stroke="#00f0ff" stroke-width="2"/><circle cx="18" cy="18" r="2.5" fill="#ffffff"/></svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-top-row">
+                <span class="stat-num" id="stat-total">179</span>
+                <span class="stat-badge total-badge">Active</span>
+              </div>
+              <span class="stat-label">Total Scans</span>
+              <svg class="stat-sparkline" viewBox="0 0 100 20"><path d="M0,12 Q20,16 40,8 T70,12 T85,6 T100,10" fill="none" stroke="#00f0ff" stroke-width="2" opacity="0.75"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK SCAN ON DASHBOARD -->
+        <div class="dashboard-quick-scan glass-card">
+          <h3>⚡ Quick Scan</h3>
+          <p>Paste any URL, message, or link to analyze instantly</p>
+          <div class="quick-scan-bar">
+            <input type="text" id="quick-scan-input" placeholder="https://example.com/offer or paste any message..." />
+            <button class="btn-primary" onclick="quickScan()">Analyze Now</button>
+          </div>
+        </div>
+
+        <!-- COMMUNITY TRUST NETWORK / WHATSAPP SCAM GROUP CARD -->
+        <div class="glass-card" style="margin-bottom:1.5rem; background: linear-gradient(135deg, rgba(37,211,102,0.12), rgba(0,240,255,0.06)); border: 1.5px solid #25D366; padding: 1.3rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <span style="font-size:2.2rem; filter:drop-shadow(0 0 10px #25D366);">🛡️</span>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <h3 style="margin:0; font-size:1.2rem; color:#fff;">PhishGuard Trust Community</h3>
+                  <span class="badge" style="background:#25D366; color:#020617; font-weight:800; font-size:0.7rem;">OFFICIAL</span>
+                </div>
+                <p style="margin:4px 0 0 0; font-size:0.85rem; color:#cbd5e1;">
+                  Verified scam protection circle (127 Guardians). Verify your phone with OTP, record community trust, and voluntarily join our official WhatsApp group.
+                </p>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn-primary" onclick="window.PhishGuardTrustNetwork && window.PhishGuardTrustNetwork.openGroup()" style="background:linear-gradient(135deg, #00f0ff, #0077b6); font-weight:800; display:flex; align-items:center; gap:8px; border:none; cursor:pointer;">
+                <span>🛡️</span> Open Community
+              </button>
+              <button class="btn-primary" onclick="window.open('https://chat.whatsapp.com/FyhDlxIEj4R8BLXtjkJDyTIN', '_blank')" style="background:linear-gradient(135deg, #25D366, #128C7E); box-shadow:0 0 15px rgba(37,211,102,0.4); font-weight:800; display:flex; align-items:center; gap:8px; border:none; cursor:pointer;">
+                <span>💬</span> Join WhatsApp
+              </button>
+              <button class="btn-ghost" onclick="switchPage('trustnetwork')">
+                Full Page ↗
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- THREAT LEVEL METER -->
+        <div class="glass-card threat-meter-card">
+          <h3>🌡️ Current Threat Level</h3>
+          <div class="threat-meter">
+            <div class="meter-track">
+              <div class="meter-fill" id="meter-fill" style="width:34%"></div>
+            </div>
+            <div class="meter-labels">
+              <span>LOW</span><span>MODERATE</span><span>HIGH</span><span>CRITICAL</span>
+            </div>
+          </div>
+          <div class="threat-label" id="threat-label">🟡 Moderate — 3 suspicious threats detected today</div>
+        </div>
+
+        <!-- RECENT ACTIVITY -->
+        <div class="glass-card">
+          <h3>📋 Recent Activity</h3>
+          <div class="activity-list" id="activity-list"></div>
+        </div>
+
+        <!-- ENGINE DIAGRAM -->
+        <div class="glass-card engine-diagram-card">
+          <h3>⚙️ Unified Threat Engine</h3>
+          <div class="engine-diagram">
+            <div class="engine-row">
+              <div class="engine-node input-node">INCOMING CONTENT</div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row three-cols">
+              <div class="engine-node channel-node">📧 EMAIL</div>
+              <div class="engine-node channel-node">💬 WHATSAPP</div>
+              <div class="engine-node channel-node">📱 SMS</div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row">
+              <div class="engine-node process-node">🔗 URL EXTRACTOR</div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row">
+              <div class="engine-node core-node">🛡️ PHISHGUARD ENGINE</div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row three-cols">
+              <div class="engine-node analysis-node">URL Analysis<br/><small>Domain Risk · Redirects</small></div>
+              <div class="engine-node analysis-node">Brand Detection<br/><small>Typosquatting · Match</small></div>
+              <div class="engine-node analysis-node">Payment Detection<br/><small>UPI · Bank · Card</small></div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row">
+              <div class="engine-node process-node">🧠 NLP ENGINE → THREAT INTELLIGENCE</div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row">
+              <div class="engine-node process-node">📊 RISK SCORE 0–100</div>
+            </div>
+            <div class="engine-arrow">↓</div>
+            <div class="engine-row three-cols">
+              <div class="engine-node safe-node">🟢 SAFE</div>
+              <div class="engine-node suspicious-node">🟡 SUSPICIOUS</div>
+              <div class="engine-node fraud-node">🔴 FRAUD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCAN & ANALYZE ===== -->
+      <div class="page hidden" id="page-scan">
+        <div class="page-header">
+          <h2>🔍 Scan & Analyze</h2>
+          <p>Analyze any URL, message or link through the Unified Threat Engine</p>
+        </div>
+
+        <div class="scan-layout">
+          <div class="scan-input-panel glass-card">
+            <div class="channel-tabs">
+              <button class="ch-tab active" id="ch-url" onclick="setChannel('url')">🔗 URL</button>
+              <button class="ch-tab" id="ch-email" onclick="setChannel('email')">📧 Email</button>
+              <button class="ch-tab" id="ch-whatsapp" onclick="setChannel('whatsapp')">💬 WhatsApp</button>
+              <button class="ch-tab" id="ch-sms" onclick="setChannel('sms')">📱 SMS</button>
+            </div>
+
+            <div id="channel-url" class="channel-form">
+              <label>Enter URL to Scan</label>
+              <input type="text" id="input-url" class="scan-input" placeholder="https://suspicious-link.com/offer?ref=xyz" />
+            </div>
+            <div id="channel-email" class="channel-form hidden">
+              <label>Paste Email Content</label>
+              <textarea id="input-email" class="scan-textarea" placeholder="Paste the full email content here. PhishGuard will extract and analyze all links..."></textarea>
+            </div>
+            <div id="channel-whatsapp" class="channel-form hidden">
+              <label>WhatsApp Message</label>
+              <textarea id="input-whatsapp" class="scan-textarea" placeholder="Paste WhatsApp message here, e.g.: Congratulations! You won ₹50,000. Claim now: https://..."></textarea>
+            </div>
+            <div id="channel-sms" class="channel-form hidden">
+              <label>SMS Content</label>
+              <textarea id="input-sms" class="scan-textarea" placeholder="Paste SMS content here. e.g.: Your OTP is 123456 or click: https://..."></textarea>
+            </div>
+
+            <button class="btn-primary btn-scan" id="scan-btn" onclick="runScan()">
+              <span id="scan-btn-text">🔍 Analyze Now</span>
+              <div class="btn-spinner hidden" id="scan-spinner"></div>
+            </button>
+          </div>
+
+          <!-- RESULT PANEL -->
+          <div class="scan-result-panel" id="scan-result-panel">
+            <div class="result-placeholder glass-card" id="result-placeholder">
+              <div class="placeholder-icon">🛡️</div>
+              <p>Enter a URL or message above<br/>to get your security analysis</p>
+            </div>
+            <div class="result-card hidden" id="result-card">
+              <!-- filled by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- EXTRACTED URLS LIST -->
+        <div class="glass-card hidden" id="extracted-urls-panel">
+          <h3>🔗 Extracted URLs</h3>
+          <div id="extracted-urls-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== EMAIL PROTECTION ===== -->
+      <div class="page hidden" id="page-email">
+        <div class="page-header">
+          <h2>📧 Email Protection</h2>
+          <p>Detect phishing, impersonation, and malicious links in emails</p>
+        </div>
+        <div class="email-layout">
+          <div class="glass-card email-compose">
+            <h3>Analyze Email</h3>
+            <div class="form-group">
+              <label>From Address</label>
+              <input type="text" id="email-from" class="scan-input" placeholder="sender@bank-alerts.com" />
+            </div>
+            <div class="form-group">
+              <label>Subject</label>
+              <input type="text" id="email-subject" class="scan-input" placeholder="URGENT: Your account will be suspended" />
+            </div>
+            <div class="form-group">
+              <label>Email Body</label>
+              <textarea id="email-body" class="scan-textarea" placeholder="Paste email body here..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="analyzeEmail()">
+              <span id="email-btn-text">🔍 Analyze Email</span>
+              <div class="btn-spinner hidden" id="email-spinner"></div>
+            </button>
+          </div>
+          <div id="email-result-container">
+            <div class="result-placeholder glass-card">
+              <div class="placeholder-icon">📧</div>
+              <p>Paste an email above<br/>to detect phishing attempts</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- EMAIL PHISHING INDICATORS -->
+        <div class="glass-card">
+          <h3>🚨 Common Email Phishing Indicators</h3>
+          <div class="indicators-grid">
+            <div class="indicator-item"><span>🔴</span> Suspicious sender domain</div>
+            <div class="indicator-item"><span>🔴</span> Urgency / threat language</div>
+            <div class="indicator-item"><span>🔴</span> Mismatched display name</div>
+            <div class="indicator-item"><span>🟡</span> Requests personal info</div>
+            <div class="indicator-item"><span>🟡</span> Shortened URLs</div>
+            <div class="indicator-item"><span>🟡</span> Generic greetings</div>
+            <div class="indicator-item"><span>🟢</span> Valid SPF/DKIM</div>
+            <div class="indicator-item"><span>🟢</span> Known trusted domain</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== WHATSAPP / SMS ===== -->
+      <div class="page hidden" id="page-whatsapp">
+        <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h2>💬 WhatsApp & SMS Protection</h2>
+            <p>Protect yourself from scam links sent via messaging apps</p>
+          </div>
+          <button class="btn-primary" onclick="switchPage('trustnetwork')" style="background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 4px 15px rgba(37,211,102,0.3); font-weight:700; display:flex; align-items:center; gap:8px; border:none; cursor:pointer;">
+            <span>🛡️</span> Open Trust Network
+          </button>
+        </div>
+
+        <!-- WHATSAPP FLOW VISUALIZATION -->
+        <div class="glass-card whatsapp-flow-card">
+          <h3>🔄 How Link Protection Works</h3>
+          <div class="wa-flow">
+            <div class="wa-step">
+              <div class="wa-step-icon">💬</div>
+              <div class="wa-step-label">Receive Link<br/>in WhatsApp/SMS</div>
+            </div>
+            <div class="wa-arrow">→</div>
+            <div class="wa-step">
+              <div class="wa-step-icon">📋</div>
+              <div class="wa-step-label">Copy & Paste<br/>to PhishGuard</div>
+            </div>
+            <div class="wa-arrow">→</div>
+            <div class="wa-step">
+              <div class="wa-step-icon">🛡️</div>
+              <div class="wa-step-label">PhishGuard<br/>Analyzes Link</div>
+            </div>
+            <div class="wa-arrow">→</div>
+            <div class="wa-step">
+              <div class="wa-step-icon">✅</div>
+              <div class="wa-step-label">Get Security<br/>Result Instantly</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="whatsapp-layout">
+          <!-- WHATSAPP SIMULATOR -->
+          <div class="wa-simulator glass-card">
+            <div class="wa-header">
+              <div class="wa-avatar">👤</div>
+              <div>
+                <div class="wa-contact">Unknown Contact</div>
+                <div class="wa-status">online</div>
+              </div>
+            </div>
+            <div class="wa-chat" id="wa-chat">
+              <div class="wa-bubble received" id="wa-sample-msg">
+                <div class="wa-msg-text">Congratulations! 🎉 You've won ₹50,000 in our lucky draw. Claim your prize now before it expires!</div>
+                <div class="wa-link-preview">
+                  <span class="wa-link-url" id="wa-link-text">https://prize-claim.xyz/win?uid=93847</span>
+                </div>
+                <div class="wa-time">4:23 PM ✓✓</div>
+              </div>
+            </div>
+            <div class="wa-input-bar">
+              <input type="text" id="wa-message-input" placeholder="Paste WhatsApp message here..." />
+              <button onclick="loadWAMessage()" class="wa-send-btn">📤</button>
+            </div>
+          </div>
+
+          <!-- WA SCAN PANEL -->
+          <div class="wa-scan-panel glass-card">
+            <h3>🔍 Scan WhatsApp / SMS Link</h3>
+            <p class="help-text">Paste the message or just the link. PhishGuard will extract and analyze all URLs.</p>
+            <textarea id="wa-scan-input" class="scan-textarea" placeholder="Paste message or link here...&#10;&#10;Example:&#10;Congratulations! You won ₹50,000.&#10;Claim now: https://prize-claim.xyz/win?uid=93847"></textarea>
+            <button class="btn-primary" onclick="scanWAMessage()">
+              <span id="wa-btn-text">🛡️ Check for Fraud</span>
+              <div class="btn-spinner hidden" id="wa-spinner"></div>
+            </button>
+            <div id="wa-result-container" class="mt-16"></div>
+          </div>
+        </div>
+
+        <!-- COMMON SCAM PATTERNS -->
+        <div class="glass-card">
+          <h3>⚠️ Common WhatsApp / SMS Scam Patterns</h3>
+          <div class="scam-patterns-grid">
+            <div class="scam-pattern fraud">
+              <div class="sp-icon">🎁</div>
+              <div class="sp-title">Lottery / Prize Scam</div>
+              <div class="sp-desc">Claims you won money or prizes. Requires clicking a link to claim.</div>
+            </div>
+            <div class="scam-pattern fraud">
+              <div class="sp-icon">🏦</div>
+              <div class="sp-title">Bank Impersonation</div>
+              <div class="sp-desc">Fake bank alerts asking you to verify your account or UPI.</div>
+            </div>
+            <div class="scam-pattern fraud">
+              <div class="sp-icon">👔</div>
+              <div class="sp-title">Job Fraud</div>
+              <div class="sp-desc">Part-time job offers asking for registration fees or personal data.</div>
+            </div>
+            <div class="scam-pattern suspicious">
+              <div class="sp-icon">📦</div>
+              <div class="sp-title">Package Delivery</div>
+              <div class="sp-desc">Fake courier alerts with tracking links leading to phishing sites.</div>
+            </div>
+            <div class="scam-pattern suspicious">
+              <div class="sp-icon">💳</div>
+              <div class="sp-title">KYC / OTP Scam</div>
+              <div class="sp-desc">Requests KYC update or OTP verification via suspicious links.</div>
+            </div>
+            <div class="scam-pattern suspicious">
+              <div class="sp-icon">🏛️</div>
+              <div class="sp-title">Government Impersonation</div>
+              <div class="sp-desc">Fake income tax refund, UIDAI, or government scheme links.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BROWSER GUARD ===== -->
+      <div class="page hidden" id="page-browser">
+        <div class="page-header">
+          <h2>🌐 Browser Guard</h2>
+          <p>Real-time protection for links you open in your browser</p>
+        </div>
+
+        <div class="browser-layout">
+          <div class="browser-mockup glass-card">
+            <div class="browser-chrome">
+              <div class="browser-dots">
+                <span style="background:#ff5f57"></span>
+                <span style="background:#febc2e"></span>
+                <span style="background:#28c840"></span>
+              </div>
+              <div class="browser-url-bar">
+                <span class="url-icon" id="browser-url-icon">🔒</span>
+                <input type="text" id="browser-url-input" value="https://netbanking-hdfc.phishing-site.com/login" class="browser-url-field" onkeydown="if(event.key==='Enter')checkBrowserURL()" />
+                <button onclick="checkBrowserURL()" class="browser-go-btn">→</button>
+              </div>
+            </div>
+            <div class="browser-content" id="browser-content">
+              <div class="browser-warning hidden" id="browser-warning">
+                <div class="bw-icon">🔴</div>
+                <h3 class="bw-title" id="bw-title">Dangerous Site Blocked</h3>
+                <p class="bw-msg" id="bw-msg">PhishGuard has blocked this site to protect you.</p>
+                <div class="bw-risk" id="bw-risk-score"></div>
+                <div class="bw-actions">
+                  <button class="btn-danger" onclick="resetBrowser()">⬅️ Go Back (Safe)</button>
+                  <button class="btn-ghost" onclick="proceedAnyway()">Proceed Anyway (Risk)</button>
+                </div>
+              </div>
+              <div class="browser-safe hidden" id="browser-safe">
+                <div class="bs-icon">🟢</div>
+                <h3>Site Appears Safe</h3>
+                <p id="bs-msg">This URL passed all PhishGuard checks.</p>
+              </div>
+              <div class="browser-idle" id="browser-idle">
+                <div style="text-align:center; opacity:.5;">
+                  <div style="font-size:3rem;">🌐</div>
+                  <p>Enter a URL above and press Enter or → to check it</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="browser-features glass-card">
+            <h3>🛡️ Browser Guard Features</h3>
+            <div class="feature-list">
+              <div class="feature-item active">
+                <div class="feature-toggle" onclick="toggleFeature(this)"></div>
+                <div>
+                  <div class="feature-name">Real-time URL Scanning</div>
+                  <div class="feature-desc">Check URLs before they load</div>
+                </div>
+              </div>
+              <div class="feature-item active">
+                <div class="feature-toggle" onclick="toggleFeature(this)"></div>
+                <div>
+                  <div class="feature-name">Phishing Page Detection</div>
+                  <div class="feature-desc">Identify login form spoofing</div>
+                </div>
+              </div>
+              <div class="feature-item active">
+                <div class="feature-toggle" onclick="toggleFeature(this)"></div>
+                <div>
+                  <div class="feature-name">SSL / Certificate Check</div>
+                  <div class="feature-desc">Verify HTTPS and certificate validity</div>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-toggle" onclick="toggleFeature(this)"></div>
+                <div>
+                  <div class="feature-name">Download Protection</div>
+                  <div class="feature-desc">Scan files before download</div>
+                </div>
+              </div>
+              <div class="feature-item active">
+                <div class="feature-toggle" onclick="toggleFeature(this)"></div>
+                <div>
+                  <div class="feature-name">Redirect Chain Analysis</div>
+                  <div class="feature-desc">Trace all URL redirects</div>
+                </div>
+              </div>
+              <div class="feature-item active">
+                <div class="feature-toggle" onclick="toggleFeature(this)"></div>
+                <div>
+                  <div class="feature-name">Brand Impersonation Alert</div>
+                  <div class="feature-desc">Detect fake brand sites</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== THREAT GRAPH ===== -->
+      <div class="page hidden" id="page-threats">
+        <div class="page-header">
+          <h2>🕸️ Threat Intelligence Graph</h2>
+          <p>Visual map of detected threats and their connections</p>
+        </div>
+        <div class="glass-card" style="padding:1.5rem;">
+          <canvas id="threat-canvas" width="900" height="500"></canvas>
+        </div>
+        <div class="threat-legend glass-card">
+          <div class="legend-item"><div class="legend-dot" style="background:#00ff88"></div> Safe Domain</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ffd700"></div> Suspicious</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div> Fraud / Blocked</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#00aaff"></div> Your Device</div>
+        </div>
+      </div>
+
+      <!-- ===== SCAN HISTORY ===== -->
+      <div class="page hidden" id="page-history">
+        <div class="page-header">
+          <h2>📋 Scan History</h2>
+          <p>All past analyses and their results</p>
+        </div>
+        <div class="glass-card">
+          <div class="history-toolbar">
+            <input type="text" id="history-search" placeholder="Search URL or message..." oninput="filterHistory()" class="scan-input" style="width:100%;max-width:400px;" />
+            <div class="history-filters">
+              <button class="filter-btn active" onclick="filterByResult('all', this)">All</button>
+              <button class="filter-btn" onclick="filterByResult('safe', this)">🟢 Safe</button>
+              <button class="filter-btn" onclick="filterByResult('suspicious', this)">🟡 Suspicious</button>
+              <button class="filter-btn" onclick="filterByResult('fraud', this)">🔴 Fraud</button>
+            </div>
+          </div>
+          <div id="history-list" class="history-list"></div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="page hidden" id="page-settings">
+        <div class="page-header">
+          <h2>⚙️ Settings</h2>
+          <p>Customize your PhishGuard AI experience</p>
+        </div>
+        <div class="settings-grid">
+          <div class="glass-card settings-section">
+            <h3>🎨 Appearance</h3>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Dark Mode</div>
+                <div class="setting-desc">Switch between dark and light themes</div>
+              </div>
+              <div class="toggle-switch" id="theme-toggle-settings" onclick="toggleTheme()"></div>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">3D Background</div>
+                <div class="setting-desc">Animated cursor-reactive background</div>
+              </div>
+              <div class="toggle-switch active" id="bg-toggle" onclick="toggle3DBg(this)"></div>
+            </div>
+          </div>
+          <div class="glass-card settings-section">
+            <h3>🔔 Notifications</h3>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Fraud Alerts</div>
+                <div class="setting-desc">Get alerted when fraud is detected</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Suspicious Warnings</div>
+                <div class="setting-desc">Warn when suspicious content found</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Daily Summary</div>
+                <div class="setting-desc">Daily report of threats detected</div>
+              </div>
+              <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+            </div>
+          </div>
+          <div class="glass-card settings-section">
+            <h3>🛡️ Protection</h3>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Auto-block Fraud</div>
+                <div class="setting-desc">Automatically block high-risk URLs</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Brand Protection</div>
+                <div class="setting-desc">Detect typosquatting and brand fakes</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Payment Scan</div>
+                <div class="setting-desc">Detect UPI, bank, and card scams</div>
+              </div>
+              <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+            </div>
+          </div>
+          <div class="glass-card settings-section">
+            <h3>👤 Account</h3>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name" id="settings-username">John Doe</div>
+                <div class="setting-desc" id="settings-email">john@example.com</div>
+              </div>
+              <button class="btn-ghost btn-sm" onclick="logout()">Logout</button>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-name">Clear Scan History</div>
+                <div class="setting-desc">Remove all past scans</div>
+              </div>
+              <button class="btn-danger btn-sm" onclick="clearHistory()">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== DEFENSE LAB (14 MODULES) ===== -->
+      <div class="page hidden" id="page-defenselab"></div>
+
+      <!-- ===== TRUST NETWORK (COMMUNITY DEFENSE) ===== -->
+      <div class="page hidden" id="page-trustnetwork"></div>
+
+      <!-- ===== BUSINESS PAYMENT DATASET & INTELLIGENCE ===== -->
+      <div class="page hidden" id="page-payments"></div>
+
+    </main>
+  </div>
+
+  <!-- GLOBAL RESULT MODAL -->
+  <div class="modal-overlay hidden" id="result-modal">
+    <div class="modal-card" id="modal-card-3d">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Supabase JS v2 (official CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- PhishGuard Supabase client config -->
+  <script src="supabase-config.js"></script>
+  <script src="dna.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+  <script src="bg3d.js"></script>
+  <script src="cyber.js"></script>
+  <script src="pwa.js"></script>
+  <script src="copilot.js"></script>
+  <script src="defenselab.js"></script>
+  <script src="trustnetwork.js?v=2.6"></script>
+  <script src="paymentIntel.js"></script>
+</body>
+</html>

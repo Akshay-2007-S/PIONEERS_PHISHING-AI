@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishGuard AI — Autonomous Threat Vector Defense</title>
+  <link rel="icon" type="image/svg+xml" href="assets/core-phishing.svg">
+
+  <!-- 8. ENTRANCE ANIMATION: Blocking inline script before stylesheet -->
+  <script>
+    (function(){try{
+      if(!window.matchMedia||!matchMedia('(prefers-reduced-motion: reduce)').matches){
+        document.documentElement.classList.add('anim');
+      }
+    }catch(e){}})();
+  </script>
+
+  <!-- 3. FONTS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ══════════════════════════════════════════════════════════════════
+       4. DESIGN SYSTEM — ONE custom property --u = one design pixel
+       ══════════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+    :root{
+      --dw:1353; --dh:1163; --gutter:25;
+      --u:max(min(.72px, calc(100vh / 700)), min(calc(100vw / 1353), calc(100vh / 1163)));
+      --dh-px:calc(1163 * var(--u));
+      --vshift:calc(max(0px, (100vh - var(--dh-px))) * .42);
+      --ink:#ffffff; --cyan:#00f0ff; --cyan-logo:#00f0ff;
+      --rule:rgba(0,240,255,.32); --btn-ink:#030816;
+      --font-serif:'Orbitron', monospace, sans-serif;
+      --font-body:'Rajdhani', system-ui, -apple-system, sans-serif;
+      --font-logo:'Orbitron', sans-serif;
+    }
+    @supports (height:100dvh){
+      :root{
+        --u:max(min(.72px, calc(100dvh / 700)), min(calc(100vw / 1353), calc(100dvh / 1163)));
+        --vshift:calc(max(0px, (100dvh - var(--dh-px))) * .42);
+      }
+    }
+
+    html,body{height:100%}
+    body{background:#020611; color:var(--ink); font-family:var(--font-body);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      text-rendering:geometricPrecision; overflow:hidden}
+
+    /* ══════════════════════════════════════════════════════════════════
+       6. CSS — exact values & cyber styling
+       ══════════════════════════════════════════════════════════════════ */
+    .stage{position:fixed; inset:0; overflow:hidden; isolation:isolate}
+
+    /* BACKDROP & 3D CYBER GLOBE CANVAS */
+    .sky{position:absolute; inset:0; z-index:0;
+      background:#020611; overflow:hidden}
+    .sky canvas#cyber-globe{position:absolute; inset:0; width:100%; height:100%; display:block}
+    @media (prefers-reduced-motion:reduce){ .sky canvas#cyber-globe{display:none} }
+
+    /* COLOR THEME SELECTOR PILLS */
+    .color-picker-wrap{position:absolute; top:calc(102 * var(--u)); right:calc(49 * var(--u));
+      z-index:7; display:flex; align-items:center; gap:calc(8 * var(--u));
+      background:rgba(4,14,30,.78); border:calc(1 * var(--u)) solid rgba(0,240,255,.24);
+      border-radius:calc(20 * var(--u)); padding:calc(5 * var(--u)) calc(12 * var(--u));
+      backdrop-filter:blur(calc(10 * var(--u))); -webkit-backdrop-filter:blur(calc(10 * var(--u)));
+      box-shadow:0 calc(4 * var(--u)) calc(16 * var(--u)) rgba(0,0,0,.6)}
+    .color-label{font-family:var(--font-logo); font-size:calc(11 * var(--u)); font-weight:700;
+      color:rgba(255,255,255,.65); letter-spacing:calc(1.5 * var(--u))}
+    .color-pill{display:flex; align-items:center; gap:calc(6 * var(--u));
+      background:none; border:none; color:rgba(255,255,255,.7); cursor:pointer;
+      font-family:var(--font-body); font-size:calc(14 * var(--u)); font-weight:600;
+      padding:calc(3 * var(--u)) calc(8 * var(--u)); border-radius:calc(12 * var(--u));
+      transition:all .2s ease}
+    .color-pill span{display:inline-block; width:calc(9 * var(--u)); height:calc(9 * var(--u));
+      border-radius:50%; box-shadow:0 0 calc(6 * var(--u)) currentColor}
+    .color-pill:hover{color:#fff; background:rgba(255,255,255,.09)}
+    .color-pill.is-active{color:#fff; background:rgba(255,255,255,.18);
+      box-shadow:inset 0 0 calc(6 * var(--u)) rgba(255,255,255,.15);
+      border:calc(1 * var(--u)) solid var(--cyan)}
+    @media (max-width:1030px){
+      .color-picker-wrap{top:calc(88 * var(--u)); right:calc(25 * var(--u))}
+    }
+    @media (max-width:579px){
+      .color-picker-wrap{top:calc(78 * var(--u)); right:50%; transform:translateX(50%);
+        padding:calc(2 * var(--u)) calc(8 * var(--u)); gap:calc(5 * var(--u))}
+      .color-label{display:none}
+      .color-pill{font-size:calc(12 * var(--u)); padding:calc(2 * var(--u)) calc(6 * var(--u))}
+    }
+
+    /* CRT scanlines & vignette overlay */
+    .stage::after{content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+      background:repeating-linear-gradient(0deg,rgba(0,0,0,.15) 0,rgba(0,0,0,.15) 1px,transparent 1px,transparent 3px),
+                 radial-gradient(ellipse at center,transparent 55%,rgba(2,6,17,.75) 100%);
+      opacity:.65}
+
+    .ui{position:absolute; inset:0; z-index:3}
+
+    /* SIDE PLANET SLOTS (Cyber Cores) */
+    .planet{position:absolute; z-index:-1; padding:0; border:0; background:none;
+      -webkit-appearance:none; appearance:none; line-height:0; cursor:pointer;
+      pointer-events:auto;
+      transition:transform .45s cubic-bezier(.22,1,.36,1)}
+    .planet img{display:none; width:100%; height:auto; filter:drop-shadow(0 0 calc(18 * var(--u)) rgba(0,240,255,.45))}
+    .planet img.is-shown{display:block}
+    .planet:hover{transform:scale(1.06)}
+    .planet:active{transform:scale(.98)}
+    .planet-l{width:calc(150 * var(--u)); left:calc(-72 * var(--u)); top:calc(-42 * var(--u))}
+    .planet-r{width:calc(150 * var(--u)); right:calc(-68 * var(--u)); top:calc(-44 * var(--u))}
+    @media (prefers-reduced-motion:reduce){
+      .planet{transition:none} .planet:hover,.planet:active{transform:none}
+    }
+
+    /* LAYOUT */
+    .copy{position:absolute; inset:0; transform:translateY(var(--vshift)); pointer-events:none}
+    .copy a{pointer-events:auto}
+    .col{position:absolute; left:0; right:calc(var(--gutter) * var(--u)); text-align:center}
+
+    /* NAV */
+    .navbar{position:absolute; top:0; left:0; right:0; z-index:6; height:calc(88 * var(--u))}
+    .navbar::after{content:""; position:absolute; left:calc(25 * var(--u));
+      right:calc(49 * var(--u)); top:calc(86 * var(--u)); height:calc(2 * var(--u));
+      background:var(--rule); box-shadow:0 0 calc(8 * var(--u)) rgba(0,240,255,.3)}
+    .navrow{position:absolute; left:calc(25 * var(--u)); right:calc(49 * var(--u)); top:0;
+      height:calc(86 * var(--u)); display:flex; align-items:center; justify-content:space-between}
+    .logo{font-family:var(--font-logo); font-weight:800; font-size:calc(18.4 * var(--u));
+      letter-spacing:calc(1 * var(--u)); line-height:1; color:#fff; text-decoration:none;
+      white-space:nowrap; position:relative; top:calc(-1 * var(--u)); text-transform:uppercase}
+    .logo i{font-style:normal; color:var(--cyan-logo); text-shadow:0 0 calc(12 * var(--u)) var(--cyan)}
+    .burger{display:none; position:relative; width:calc(46 * var(--u)); height:calc(46 * var(--u));
+      padding:0; border:0; background:none; cursor:pointer; flex-direction:column;
+      align-items:center; justify-content:center; gap:calc(6 * var(--u)); flex:none}
+    .burger span{display:block; width:calc(24 * var(--u)); height:calc(2 * var(--u));
+      border-radius:calc(2 * var(--u)); background:#fff;
+      transition:transform .28s cubic-bezier(.4,0,.2,1), opacity .18s linear}
+    .navrow[data-open="true"] .burger span:nth-child(1){transform:translateY(calc(8 * var(--u))) rotate(45deg)}
+    .navrow[data-open="true"] .burger span:nth-child(2){opacity:0}
+    .navrow[data-open="true"] .burger span:nth-child(3){transform:translateY(calc(-8 * var(--u))) rotate(-45deg)}
+    .links{display:flex; align-items:center}
+    .links a{position:relative; display:flex; align-items:center; height:calc(86 * var(--u));
+      font-size:calc(18.4 * var(--u)); font-weight:600; line-height:1; color:rgba(255,255,255,.85);
+      text-decoration:none; padding:0 calc(17.5 * var(--u));
+      letter-spacing:calc(0.5 * var(--u)); white-space:nowrap; text-transform:uppercase}
+    .links a[aria-current="page"]{color:#fff}
+    .links a[aria-current="page"]::after{content:""; position:absolute; left:0; right:0;
+      top:calc(83.5 * var(--u)); height:calc(4 * var(--u)); background:var(--cyan);
+      box-shadow:0 0 calc(10 * var(--u)) var(--cyan);
+      border-radius:calc(1 * var(--u))}
+    .links a:nth-child(3){letter-spacing:calc(0.2 * var(--u))}
+    .links a:nth-child(2){margin-left:calc(24 * var(--u))}
+    .links a:nth-child(3){margin-left:calc(26 * var(--u))}
+    .links a:nth-child(4){margin-left:calc(27 * var(--u))}
+    .links a.enroll{margin-left:calc(28.5 * var(--u)); width:calc(138 * var(--u));
+      height:calc(38 * var(--u)); border-radius:calc(19 * var(--u)); display:flex;
+      align-items:center; justify-content:center; font-size:calc(16 * var(--u));
+      font-weight:700; letter-spacing:calc(0.5 * var(--u)); line-height:1;
+      color:var(--btn-ink); text-decoration:none; padding-top:calc(2 * var(--u));
+      background:linear-gradient(180deg,#ffffff 0%,#c2f7ff 12%,#5ae5f7 72%,#ffffff 100%);
+      box-shadow:0 calc(3 * var(--u)) calc(16 * var(--u)) rgba(0,240,255,.35),
+                 inset 0 0 0 calc(1.5 * var(--u)) rgba(255,255,255,.92);
+      flex:none}
+
+    /* HERO COPY */
+    .eyebrow{top:calc(188.8 * var(--u)); font-size:calc(26 * var(--u)); font-weight:700;
+      line-height:1; letter-spacing:calc(5 * var(--u)); text-indent:calc(5 * var(--u)); color:var(--cyan);
+      text-shadow:0 0 calc(12 * var(--u)) rgba(0,240,255,.5)}
+    h1.title{top:calc(268 * var(--u)); font-family:var(--font-serif); font-weight:900;
+      font-size:calc(106 * var(--u)); line-height:1; letter-spacing:calc(6 * var(--u));
+      text-indent:calc(6 * var(--u)); color:#fff;
+      text-shadow:0 0 calc(25 * var(--u)) rgba(0,240,255,.3)}
+    .rule{top:calc(405.5 * var(--u)); height:calc(5 * var(--u)); font-size:0; line-height:0;
+      padding-right:calc(2 * var(--u))}
+    .rule span{display:inline-block; vertical-align:top; width:calc(100 * var(--u));
+      height:100%; border-radius:calc(2.5 * var(--u)); background:var(--cyan);
+      box-shadow:0 0 calc(12 * var(--u)) var(--cyan)}
+    p.lede{top:calc(433.2 * var(--u)); font-size:calc(19 * var(--u)); font-weight:500;
+      line-height:calc(30 * var(--u)); color:rgba(255,255,255,.92); letter-spacing:calc(0.4 * var(--u))}
+
+    /* CTA ROW */
+    .cta{top:calc(597 * var(--u)); height:calc(66 * var(--u)); isolation:isolate}
+    .cta a{display:inline-flex; align-items:center; justify-content:center;
+      width:calc(226 * var(--u)); height:calc(66 * var(--u)); border-radius:calc(33 * var(--u));
+      font-size:calc(17 * var(--u)); font-weight:700; letter-spacing:calc(0.5 * var(--u)); text-indent:0;
+      line-height:1; color:var(--btn-ink); text-decoration:none; padding-top:calc(2 * var(--u));
+      background:linear-gradient(180deg,#ffffff 0%,#d2f8ff 6%,#47e2f5 72%,#ffffff 100%);
+      box-shadow:0 calc(10 * var(--u)) calc(24 * var(--u)) calc(-6 * var(--u)) rgba(0,240,255,.6),
+                 0 0 calc(28 * var(--u)) rgba(0,240,255,.25),
+                 inset 0 0 0 calc(2 * var(--u)) rgba(255,255,255,.95);
+      transition:transform .2s ease, box-shadow .2s ease}
+    .cta a:hover{transform:translateY(calc(-2 * var(--u)));
+      box-shadow:0 calc(14 * var(--u)) calc(30 * var(--u)) calc(-4 * var(--u)) rgba(0,240,255,.75),
+                 0 0 calc(36 * var(--u)) rgba(0,240,255,.4)}
+    .label{position:absolute; top:calc(33 * var(--u)); font-family:var(--font-serif);
+      font-weight:700; font-size:calc(16.5 * var(--u)); letter-spacing:calc(4.6 * var(--u));
+      line-height:1; color:#fff; white-space:nowrap; text-shadow:0 0 calc(12 * var(--u)) rgba(0,240,255,.5)}
+    .label.label-l{left:calc(111 * var(--u))}
+    .label.label-r{right:calc(104 * var(--u))}
+
+    /* SCROLL CONTROL */
+    .scroll{position:absolute; z-index:4; left:50%;
+      margin-left:calc((-48 - (var(--gutter) / 2)) * var(--u)); bottom:calc(68 * var(--u));
+      width:calc(96 * var(--u)); height:calc(96 * var(--u)); border-radius:50%;
+      background:rgba(4,16,34,.75); -webkit-backdrop-filter:blur(calc(6 * var(--u)));
+      backdrop-filter:blur(calc(6 * var(--u))); border:calc(1 * var(--u)) solid rgba(0,240,255,.3);
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      box-shadow:0 0 calc(20 * var(--u)) rgba(0,240,255,.15);
+      transition:border-color .2s, box-shadow .2s}
+    .scroll:hover{border-color:var(--cyan); box-shadow:0 0 calc(24 * var(--u)) rgba(0,240,255,.35)}
+    .scroll svg{width:calc(20 * var(--u)); height:calc(25 * var(--u)); display:block}
+
+    /* FOCUS */
+    .scroll:focus-visible,.links a:focus-visible,.enroll:focus-visible,
+    .cta a:focus-visible,.logo:focus-visible{
+      outline:calc(2 * var(--u)) solid var(--cyan); outline-offset:calc(3 * var(--u))}
+    .planet:focus-visible{outline:calc(2 * var(--u)) solid var(--cyan);
+      outline-offset:calc(6 * var(--u)); border-radius:50%}
+
+    /* ══════════════════════════════════════════════════════════════════
+       7. RESPONSIVE — six tiers, in exact source order
+       ══════════════════════════════════════════════════════════════════ */
+
+    /* A) NAV COLLAPSE */
+    @media (max-width:1030px), (max-height:620px){
+      .navrow{left:calc(25 * var(--u)); right:calc(25 * var(--u))}
+      .burger{display:flex}
+      .links{position:absolute; top:calc(96 * var(--u)); right:0; z-index:5;
+        width:min(calc(324 * var(--u)), calc(100vw - 50 * var(--u)));
+        flex-direction:column; align-items:stretch; padding:calc(12 * var(--u));
+        border-radius:calc(20 * var(--u)); background:rgba(3,11,24,.92);
+        backdrop-filter:blur(calc(18 * var(--u)));
+        border:calc(1 * var(--u)) solid rgba(0,240,255,.3);
+        box-shadow:0 calc(18 * var(--u)) calc(44 * var(--u)) rgba(0,0,0,.8);
+        opacity:0; visibility:hidden; transform:translateY(calc(-10 * var(--u)));
+        transition:opacity .24s ease, transform .28s cubic-bezier(.4,0,.2,1), visibility .28s}
+      .navrow[data-open="true"] .links{opacity:1; visibility:visible; transform:none}
+      .links a:nth-child(n){margin-left:0; height:auto; justify-content:flex-start;
+        padding:calc(14 * var(--u)) calc(16 * var(--u)); font-size:calc(19 * var(--u));
+        letter-spacing:calc(0.5 * var(--u))}
+      .links a + a{border-top:calc(1 * var(--u)) solid rgba(255,255,255,.08)}
+      .links a[aria-current="page"]::after{top:auto; bottom:calc(9 * var(--u));
+        left:calc(16 * var(--u)); right:auto; width:calc(26 * var(--u)); height:calc(3 * var(--u))}
+      .links a.enroll{margin:calc(14 * var(--u)) 0 calc(2 * var(--u)); width:100%;
+        height:calc(46 * var(--u)); border-radius:calc(23 * var(--u)); justify-content:center;
+        padding-top:calc(2 * var(--u)); font-size:calc(18 * var(--u));
+        letter-spacing:calc(0.5 * var(--u)); border-top:0}
+      .links a.enroll::after{content:none}
+    }
+
+    /* B) TABLET */
+    @media (min-width:580px) and (max-width:1030px) and (min-height:621px){
+      :root{--gutter:0;
+        --u:min(max(min(.85px, calc(100vh / 780)), min(calc(100vw / 900), calc(100vh / 1163))), 1.15px);
+        --dh-px:calc(1120 * var(--u));
+        --vshift:calc(max(0px, (100vh - var(--dh-px))) * .38)}
+      .navbar::after{left:calc(25 * var(--u)); right:calc(25 * var(--u))}
+      p.lede br{display:none}
+      p.lede{max-width:calc(620 * var(--u)); margin-left:auto; margin-right:auto; text-wrap:pretty}
+      .label.label-r{right:calc(116 * var(--u))}
+    }
+    @supports (height:100dvh){
+      @media (min-width:580px) and (max-width:1030px) and (min-height:621px){
+        :root{
+          --u:min(max(min(.85px, calc(100dvh / 780)), min(calc(100vw / 900), calc(100dvh / 1163))), 1.15px);
+          --dh-px:calc(1120 * var(--u));
+          --vshift:calc(max(0px, (100dvh - var(--dh-px))) * .38);
+        }
+      }
+    }
+
+    /* C) PHONE */
+    @media (max-width:579px), (max-height:620px){
+      :root{--gutter:0;
+        --u:max(min(.92px, calc(100vh / 620)), min(calc(100vw / 430), calc(100vh / 880)));
+        --dh-px:calc(880 * var(--u));
+        --vshift:calc(max(0px, (100vh - var(--dh-px))) * .34)}
+      .navbar{height:calc(76 * var(--u))}
+      .navbar::after{left:calc(24 * var(--u)); right:calc(24 * var(--u)); top:calc(74 * var(--u))}
+      .navrow{left:calc(24 * var(--u)); right:calc(24 * var(--u)); height:calc(74 * var(--u))}
+      .links{top:calc(84 * var(--u))}
+      .copy{top:calc(76 * var(--u)); display:flex; flex-direction:column; align-items:center;
+        padding:calc(56 * var(--u)) calc(26 * var(--u)) 0}
+      .col{position:static; width:100%; right:auto}
+      .eyebrow{font-size:calc(18 * var(--u)); letter-spacing:calc(5 * var(--u)); text-indent:calc(5 * var(--u))}
+      h1.title{font-size:calc(78 * var(--u)); margin-top:calc(15 * var(--u))}
+      .rule{margin-top:calc(20 * var(--u)); height:calc(5 * var(--u)); padding-right:0}
+      .rule span{width:calc(84 * var(--u))}
+      p.lede{margin-top:calc(19 * var(--u)); font-size:calc(15.5 * var(--u));
+        line-height:calc(26 * var(--u)); max-width:calc(400 * var(--u)); text-wrap:balance}
+      p.lede br{display:none}
+      .cta{top:auto; margin-top:calc(32 * var(--u)); height:calc(60 * var(--u)); position:relative}
+      .cta a{width:calc(200 * var(--u)); height:calc(60 * var(--u)); border-radius:calc(30 * var(--u))}
+      .label{top:50%; transform:translateY(-50%); font-size:calc(15 * var(--u));
+        letter-spacing:calc(3.5 * var(--u))}
+      .label.label-l{left:calc(56 * var(--u))}
+      .label.label-r{right:calc(60 * var(--u))}
+      .planet-l{width:calc(92 * var(--u)); left:calc(-46 * var(--u)); top:calc(-18 * var(--u))}
+      .planet-r{width:calc(92 * var(--u)); right:calc(-46 * var(--u)); top:calc(-19 * var(--u))}
+      .scroll{width:calc(74 * var(--u)); height:calc(74 * var(--u));
+        margin-left:calc(-37 * var(--u)); bottom:calc(49 * var(--u))}
+      .scroll svg{width:calc(15.5 * var(--u)); height:calc(19.5 * var(--u))}
+    }
+    @supports (height:100dvh){
+      @media (max-width:579px), (max-height:620px){
+        :root{
+          --gutter:0;
+          --u:max(min(.92px, calc(100dvh / 620)), min(calc(100vw / 430), calc(100dvh / 880)));
+          --dh-px:calc(880 * var(--u));
+          --vshift:calc(max(0px, (100dvh - var(--dh-px))) * .34);
+        }
+      }
+    }
+
+    /* D) NO ROOM FOR SCROLL */
+    @media (max-height:660px){ .scroll{display:none} }
+
+    /* E) SHORT */
+    @media (max-height:620px){
+      :root{--u:max(min(.85px, calc(100vh / 470)), min(calc(100vw / 640), calc(100vh / 560)));
+        --dh-px:calc(560 * var(--u)); --vshift:0px}
+      .copy{padding-top:calc(26 * var(--u))}
+      h1.title{font-size:calc(60 * var(--u)); margin-top:calc(8 * var(--u))}
+      .rule{margin-top:calc(12 * var(--u))}
+      p.lede{margin-top:calc(12 * var(--u))}
+      .cta{margin-top:calc(20 * var(--u))}
+      .label{top:50%; transform:translateY(-50%); font-size:calc(14 * var(--u))}
+      .label.label-l{left:calc(58 * var(--u))}
+      .label.label-r{right:calc(58 * var(--u))}
+    }
+    @media (min-width:821px) and (max-height:660px){ .copy{transform:none} }
+
+    /* F) NARROW PHONE (declared LAST so it wins inside tier E) */
+    @media (max-width:500px){
+      .label{top:calc(100% + 34 * var(--u)); transform:none; font-size:calc(14 * var(--u))}
+      .label.label-l{left:calc(6 * var(--u))}
+      .label.label-r{right:calc(6 * var(--u))}
+    }
+
+    @media (prefers-reduced-motion:reduce){ .links,.burger span{transition:none} }
+
+    /* ══════════════════════════════════════════════════════════════════
+       8. ENTRANCE ANIMATION — runs once, then deletes itself
+       ══════════════════════════════════════════════════════════════════ */
+    @keyframes ent-reveal{from{transform:translateY(115%)}to{transform:translateY(0)}}
+    @keyframes ent-rise{from{opacity:0;transform:translateY(var(--rise,10px))}to{opacity:1;transform:none}}
+    @keyframes ent-settle{from{opacity:0;transform:translateY(var(--rise,8px)) scale(.965)}to{opacity:1;transform:none}}
+    @keyframes ent-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    @keyframes ent-fade{from{opacity:0}to{opacity:1}}
+
+    .anim{--e-expo:cubic-bezier(.16,1,.3,1); --e-quint:cubic-bezier(.22,1,.36,1);
+          --e-slow:cubic-bezier(.4,0,.2,1)}
+    .ent-mask,.ent-line{display:block}
+    .anim .ent-mask{overflow:hidden; padding-top:.18em; margin-top:-.18em}
+    .anim .ent-line{transform:translateY(115%); will-change:transform}
+    .anim .navbar::after,.anim .links a[aria-current="page"]::after,.anim .rule span{transform:scaleX(0)}
+    .anim .logo,.anim .links a,.anim .burger,.anim p.lede,.anim .label,.anim .cta a,
+    .anim .scroll,.anim .sky{opacity:0}
+    .anim .sky{will-change:opacity}
+
+    /* Sequence (all `both` fill): */
+    .anim.play .sky                               { animation:ent-fade 1.6s var(--e-slow) .25s both }
+    .anim.play .navbar::after                     { transform-origin:center; animation:ent-draw .9s var(--e-expo) .12s both }
+    .anim.play .logo                              { --rise:calc(8 * var(--u)); animation:ent-rise .6s var(--e-quint) .20s both }
+    .anim.play .links a:nth-child(1)              { --rise:calc(8 * var(--u)); animation:ent-rise .55s var(--e-quint) .26s both }
+    .anim.play .links a:nth-child(2)              { --rise:calc(8 * var(--u)); animation:ent-rise .55s var(--e-quint) .31s both }
+    .anim.play .links a:nth-child(3)              { --rise:calc(8 * var(--u)); animation:ent-rise .55s var(--e-quint) .36s both }
+    .anim.play .links a:nth-child(4)              { --rise:calc(8 * var(--u)); animation:ent-rise .55s var(--e-quint) .41s both }
+    .anim.play .links a.enroll, .anim.play .burger{ --rise:calc(8 * var(--u)); animation:ent-settle .6s var(--e-quint) .46s both }
+    .anim.play .links a[aria-current="page"]::after{ transform-origin:center; animation:ent-draw .55s var(--e-expo) .60s both }
+    .anim.play .eyebrow .ent-line                 { animation:ent-reveal .75s var(--e-expo) .30s both }
+    .anim.play h1.title .ent-line                 { animation:ent-reveal .95s var(--e-expo) .44s both }
+    .anim.play .rule span                         { transform-origin:center; animation:ent-draw .65s var(--e-expo) .78s both }
+    .anim.play p.lede                             { --rise:calc(12 * var(--u)); animation:ent-rise .7s var(--e-quint) .86s both }
+    .anim.play .label.label-l                     { --rise:calc(8 * var(--u)); animation:ent-rise .6s var(--e-quint) 1.04s both }
+    .anim.play .label.label-r                     { --rise:calc(8 * var(--u)); animation:ent-rise .6s var(--e-quint) 1.10s both }
+    .anim.play .cta a                             { --rise:calc(8 * var(--u)); animation:ent-settle .7s var(--e-quint) 1.14s both }
+    .anim.play .scroll                            { animation:ent-settle .6s var(--e-quint) 1.42s both }
+  </style>
+</head>
+<body>
+  <!-- 5. MARKUP -->
+    <div class="sky" id="sky-backdrop">
+      <canvas id="cyber-globe" aria-hidden="true"></canvas>
+    </div>
+
+    <!-- Color Switcher Pills (Blue / Pink / White / Black) -->
+    <div class="color-picker-wrap" id="color-picker" aria-label="Globe Color Theme">
+      <span class="color-label">THEME:</span>
+      <button class="color-pill is-active" data-color="blue" title="Electric Blue" aria-label="Blue theme"><span style="background:#00f0ff"></span>Blue</button>
+      <button class="color-pill" data-color="pink" title="Neon Pink" aria-label="Pink theme"><span style="background:#ff2d95"></span>Pink</button>
+      <button class="color-pill" data-color="white" title="Diamond White" aria-label="White theme"><span style="background:#ffffff"></span>White</button>
+      <button class="color-pill" data-color="black" title="Obsidian Stealth" aria-label="Black theme"><span style="background:#475569"></span>Black</button>
+    </div>
+
+    <div class="ui">
+      <header class="navbar">
+        <div class="navrow">
+          <a class="logo" href="#">phishguard<i>ai</i></a>
+          <nav class="links" id="site-nav">
+            <a href="#" aria-current="page">Vectors</a>
+            <a href="#">Heuristics</a>
+            <a href="#">Sentinel</a>
+            <a href="#">Telemetry</a>
+            <a class="enroll" href="index.html">Launch App</a>
+          </nav>
+          <button class="burger" type="button" aria-label="Open navigation"
+                  aria-expanded="false" aria-controls="site-nav">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="copy">
+        <div class="col eyebrow"><span class="ent-mask"><span class="ent-line">DEFENSE VECTOR 01</span></span></div>
+        <h1 class="col title"><span class="ent-mask"><span class="ent-line">PHISHING</span></span></h1>
+        <div class="col rule"><span></span></div>
+        <p class="col lede">Real-time neural heuristics intercepting zero-day malicious links, credential<br>harvesters, and deceptive impersonation across Email, WhatsApp, and Web.</p>
+        <div class="col cta">
+          <button class="planet planet-l" type="button" data-slot="l">
+            <img data-vector="phishing" alt="" src="assets/core-phishing.svg">
+            <img data-vector="malware" alt="" src="assets/core-malware.svg">
+            <img data-vector="fraud" alt="" src="assets/core-fraud.svg">
+          </button>
+          <button class="planet planet-r" type="button" data-slot="r">
+            <img data-vector="phishing" alt="" src="assets/core-phishing.svg">
+            <img data-vector="malware" alt="" src="assets/core-malware.svg">
+            <img data-vector="fraud" alt="" src="assets/core-fraud.svg">
+          </button>
+          <a href="index.html">ACTIVATE SHIELD</a>
+          <span class="label label-l"></span>
+          <span class="label label-r"></span>
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll" type="button" aria-label="Scroll to next section" onclick="window.location.href='index.html'">
+      <svg viewBox="0 0 26 33" fill="none" aria-hidden="true">
+        <path d="M13 1.5 V31.5 M1.9 20.4 L13 31.5 L24.1 20.4" stroke="#00f0ff"
+              stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- 8, 9, 10. SCRIPTS -->
+  <script>
+    /* ══════════════════════════════════════════════════════════════════
+       8. DRIVER SCRIPT FOR ENTRANCE ANIMATION
+       ══════════════════════════════════════════════════════════════════ */
+    (function(){
+      if (!document.documentElement.classList.contains('anim')) return;
+      const startAnim = function() {
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            document.documentElement.classList.add('play');
+            setTimeout(function() {
+              document.documentElement.classList.remove('anim', 'play');
+            }, 2150);
+          });
+        });
+      };
+
+      if (document.fonts && document.fonts.ready) {
+        var fired = false;
+        var guardTimer = setTimeout(function() {
+          if (!fired) { fired = true; startAnim(); }
+        }, 500);
+        document.fonts.ready.then(function() {
+          if (!fired) {
+            fired = true;
+            clearTimeout(guardTimer);
+            startAnim();
+          }
+        });
+      } else {
+        startAnim();
+      }
+    })();
+
+    /* ══════════════════════════════════════════════════════════════════
+       9. 3D ROTATING CYBERSECURITY GLOBE OF CONNECTING DOTS
+       (Reference: Rotating 3D Sphere of luminous nodes & network lines)
+       ══════════════════════════════════════════════════════════════════ */
+    const globeCanvas = document.getElementById('cyber-globe');
+    const gctx = globeCanvas.getContext('2d');
+
+    // 4 Color Palettes (Blue, Pink, White, Black)
+    const GLOBE_THEMES = {
+      blue: {
+        name: 'Blue',
+        primary: '#00f0ff',
+        secondary: '#0099ff',
+        coreInner: 'rgba(0, 110, 220, 0.45)',
+        coreOuter: 'rgba(2, 6, 20, 0.94)',
+        halo: 'rgba(0, 240, 255, 0.38)',
+        lineFront: [0, 240, 255],
+        lineBack: [0, 130, 240],
+        dotCore: '#ffffff',
+        dotGlow: '#00f0ff',
+        flareGlow: 'rgba(255, 255, 255, 0.9)'
+      },
+      pink: {
+        name: 'Pink',
+        primary: '#ff2d95',
+        secondary: '#ff5c93',
+        coreInner: 'rgba(180, 20, 95, 0.45)',
+        coreOuter: 'rgba(16, 2, 10, 0.94)',
+        halo: 'rgba(255, 45, 149, 0.38)',
+        lineFront: [255, 45, 149],
+        lineBack: [220, 30, 110],
+        dotCore: '#ffffff',
+        dotGlow: '#ff2d95',
+        flareGlow: 'rgba(255, 255, 255, 0.9)'
+      },
+      white: {
+        name: 'White',
+        primary: '#ffffff',
+        secondary: '#94a3b8',
+        coreInner: 'rgba(120, 150, 190, 0.36)',
+        coreOuter: 'rgba(4, 8, 16, 0.94)',
+        halo: 'rgba(255, 255, 255, 0.35)',
+        lineFront: [255, 255, 255],
+        lineBack: [148, 163, 184],
+        dotCore: '#ffffff',
+        dotGlow: '#cbd5e1',
+        flareGlow: 'rgba(255, 255, 255, 0.95)'
+      },
+      black: {
+        name: 'Black',
+        primary: '#64748b',
+        secondary: '#38bdf8',
+        coreInner: 'rgba(15, 23, 42, 0.45)',
+        coreOuter: 'rgba(1, 2, 6, 0.98)',
+        halo: 'rgba(56, 189, 248, 0.22)',
+        lineFront: [148, 163, 184],
+        lineBack: [51, 65, 85],
+        dotCore: '#f8fafc',
+        dotGlow: '#38bdf8',
+        flareGlow: 'rgba(226, 232, 240, 0.85)'
+      }
+    };
+
+    let activeThemeKey = 'blue';
+    let currentTheme = GLOBE_THEMES.blue;
+
+    let cw = 0, ch = 0;
+    function resizeGlobe() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cw = globeCanvas.width = window.innerWidth * dpr;
+      ch = globeCanvas.height = window.innerHeight * dpr;
+      gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resizeGlobe();
+    window.addEventListener('resize', resizeGlobe);
+
+    // Generate 3D Spherical Network (Fibonacci Lattice for uniform natural distribution)
+    const TOTAL_NODES = 210;
+    const nodes = [];
+    const phi = Math.PI * (3 - Math.sqrt(5)); // Golden ratio angle
+
+    for (let i = 0; i < TOTAL_NODES; i++) {
+      const y = 1 - (i / (TOTAL_NODES - 1)) * 2;
+      const radiusAtY = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = phi * i;
+      const x = Math.cos(theta) * radiusAtY;
+      const z = Math.sin(theta) * radiusAtY;
+      // Slight layer variation: surface layer + dense inner mantle
+      const layer = (i % 7 === 0) ? (0.75 + Math.random() * 0.15) : (0.97 + Math.random() * 0.05);
+
+      nodes.push({
+        x: x * layer,
+        y: y * layer,
+        z: z * layer,
+        size: (i % 9 === 0) ? 4.4 : ((i % 3 === 0) ? 2.8 : 1.8),
+        isFlare: (i % 14 === 0), // 4-point diamond cross flare nodes like in reference photo
+        pulsePhase: Math.random() * Math.PI * 2,
+        pulseSpeed: 0.02 + Math.random() * 0.03
+      });
+    }
+
+    // Pre-calculate connecting network edges
+    const edges = [];
+    for (let i = 0; i < TOTAL_NODES; i++) {
+      for (let j = i + 1; j < TOTAL_NODES; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dz = nodes[i].z - nodes[j].z;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        // Connect nearby nodes to form triangular network mesh
+        if (dist < 0.36) {
+          edges.push({ i, j, dist, isInner: false });
+        } else if (dist < 0.52 && (i % 5 === 0 || j % 5 === 0)) {
+          // Sparse internal web lines penetrating sphere volume
+          edges.push({ i, j, dist, isInner: true });
+        }
+      }
+    }
+
+    // 3D Planetary Rotation State with Fluid Direction Reversal
+    let angleY = 0;
+    let rotSpeed = 0.0035;
+    let targetRotSpeed = 0.0035;
+
+    function reverseGlobeRotation() {
+      targetRotSpeed = -targetRotSpeed;
+    }
+
+    const tiltX = 0.22; // ~12.6 degrees axial tilt
+    const tiltZ = 0.14; // ~8 degrees secondary inclination
+    const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
+    const cosZ = Math.cos(tiltZ), sinZ = Math.sin(tiltZ);
+
+    // Ambient Deep Space Constellation & Linking Lines
+    const SPACE_NODES_COUNT = 52;
+    const spaceNodes = [];
+    for (let i = 0; i < SPACE_NODES_COUNT; i++) {
+      spaceNodes.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        size: Math.random() * 2.2 + 0.9,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+
+    function draw4PointFlare(ctx, x, y, size, color) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+
+      // Horizontal ray
+      const hGrad = ctx.createLinearGradient(-size * 2.8, 0, size * 2.8, 0);
+      hGrad.addColorStop(0, 'rgba(255,255,255,0)');
+      hGrad.addColorStop(0.5, 'rgba(255,255,255,0.95)');
+      hGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = hGrad;
+      ctx.beginPath();
+      ctx.moveTo(-size * 2.8, 0);
+      ctx.lineTo(0, -1.2);
+      ctx.lineTo(size * 2.8, 0);
+      ctx.lineTo(0, 1.2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Vertical ray
+      const vGrad = ctx.createLinearGradient(0, -size * 2.8, 0, size * 2.8);
+      vGrad.addColorStop(0, 'rgba(255,255,255,0)');
+      vGrad.addColorStop(0.5, 'rgba(255,255,255,0.95)');
+      vGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = vGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, -size * 2.8);
+      ctx.lineTo(1.2, 0);
+      ctx.lineTo(0, size * 2.8);
+      ctx.lineTo(-1.2, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function render3DGlobe() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      gctx.clearRect(0, 0, w, h);
+
+      // Centered position, proportional planetary radius
+      const cx = w * 0.5;
+      const cy = h * 0.52;
+      const radius = Math.min(w, h) * 0.38;
+
+      // Smooth Inertia Rotation Reversal
+      rotSpeed += (targetRotSpeed - rotSpeed) * 0.055;
+      angleY += rotSpeed;
+      const cosY = Math.cos(angleY);
+      const sinY = Math.sin(angleY);
+
+      // 0. Render Ambient Linking Lines in Blank Space
+      const sc = currentTheme.lineFront;
+      for (let i = 0; i < SPACE_NODES_COUNT; i++) {
+        const sn = spaceNodes[i];
+        sn.x += sn.vx;
+        sn.y += sn.vy;
+        if (sn.x < 0) sn.x = w; if (sn.x > w) sn.x = 0;
+        if (sn.y < 0) sn.y = h; if (sn.y > h) sn.y = 0;
+        sn.pulse += 0.025;
+
+        // Space node
+        const snAlpha = 0.3 + Math.sin(sn.pulse) * 0.22;
+        gctx.fillStyle = `rgba(${sc[0]}, ${sc[1]}, ${sc[2]}, ${snAlpha})`;
+        gctx.beginPath();
+        gctx.arc(sn.x, sn.y, sn.size, 0, Math.PI * 2);
+        gctx.fill();
+
+        // Connect nearby space nodes to form constellation web in the blank space
+        for (let j = i + 1; j < SPACE_NODES_COUNT; j++) {
+          const sn2 = spaceNodes[j];
+          const dist = Math.hypot(sn.x - sn2.x, sn.y - sn2.y);
+          if (dist < 165) {
+            const lineAlpha = (1 - dist / 165) * 0.2;
+            gctx.strokeStyle = `rgba(${sc[0]}, ${sc[1]}, ${sc[2]}, ${lineAlpha})`;
+            gctx.lineWidth = 0.8;
+            gctx.beginPath();
+            gctx.moveTo(sn.x, sn.y);
+            gctx.lineTo(sn2.x, sn2.y);
+            gctx.stroke();
+          }
+        }
+
+        // Draw telemetry linking lines from deep space into the globe rim
+        const distCenter = Math.hypot(sn.x - cx, sn.y - cy);
+        if (distCenter > radius && distCenter < radius * 1.7) {
+          const tetherAlpha = (1 - (distCenter - radius) / (radius * 0.7)) * 0.26;
+          const theta = Math.atan2(sn.y - cy, sn.x - cx);
+          const rimX = cx + Math.cos(theta) * radius;
+          const rimY = cy + Math.sin(theta) * radius;
+
+          gctx.strokeStyle = `rgba(${sc[0]}, ${sc[1]}, ${sc[2]}, ${tetherAlpha})`;
+          gctx.setLineDash([3, 5]);
+          gctx.lineWidth = 0.85;
+          gctx.beginPath();
+          gctx.moveTo(rimX, rimY);
+          gctx.lineTo(sn.x, sn.y);
+          gctx.stroke();
+          gctx.setLineDash([]);
+        }
+      }
+
+      // 1. Draw volumetric dark sphere body with inner atmospheric radiance
+      const coreGrad = gctx.createRadialGradient(cx, cy, radius * 0.05, cx, cy, radius);
+      coreGrad.addColorStop(0, currentTheme.coreInner);
+      coreGrad.addColorStop(0.65, currentTheme.coreInner.replace(/[\d.]+\)$/, '0.2)'));
+      coreGrad.addColorStop(0.98, currentTheme.coreOuter);
+      coreGrad.addColorStop(1, 'rgba(2,6,17,0)');
+      gctx.fillStyle = coreGrad;
+      gctx.beginPath();
+      gctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      gctx.fill();
+
+      // Project all 3D points
+      const projected = new Array(TOTAL_NODES);
+      for (let i = 0; i < TOTAL_NODES; i++) {
+        const p = nodes[i];
+        p.pulsePhase += p.pulseSpeed;
+
+        // Rotate Y (Planetary spin)
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.x * sinY + p.z * cosY;
+        const y1 = p.y;
+
+        // Tilt X
+        const y2 = y1 * cosX - z1 * sinX;
+        const z2 = y1 * sinX + z1 * cosX;
+
+        // Tilt Z
+        const x3 = x1 * cosZ - y2 * sinZ;
+        const y3 = x1 * sinZ + y2 * cosZ;
+        const z3 = z2;
+
+        // Perspective
+        const cameraDist = 2.6;
+        const k = cameraDist / (cameraDist - z3);
+        const px = cx + x3 * radius * k;
+        const py = cy + y3 * radius * k;
+
+        projected[i] = { x: px, y: py, z: z3, size: p.size * k, isFlare: p.isFlare, pulse: Math.sin(p.pulsePhase) };
+      }
+
+      const lf = currentTheme.lineFront;
+      const lb = currentTheme.lineBack;
+
+      // 2. Draw Back-Hemisphere Edges (z < 0) - creates deep volumetric web
+      for (let e = 0; e < edges.length; e++) {
+        const edge = edges[e];
+        const p1 = projected[edge.i];
+        const p2 = projected[edge.j];
+        const avgZ = (p1.z + p2.z) * 0.5;
+
+        if (avgZ < 0) {
+          const depthAlpha = Math.max(0.04, (avgZ + 1) * 0.22);
+          gctx.strokeStyle = `rgba(${lb[0]}, ${lb[1]}, ${lb[2]}, ${edge.isInner ? depthAlpha * 0.6 : depthAlpha})`;
+          gctx.lineWidth = edge.isInner ? 0.6 : 0.8;
+          gctx.beginPath();
+          gctx.moveTo(p1.x, p1.y);
+          gctx.lineTo(p2.x, p2.y);
+          gctx.stroke();
+        }
+      }
+
+      // 3. Draw Back-Hemisphere Nodes (z < 0)
+      for (let i = 0; i < TOTAL_NODES; i++) {
+        const p = projected[i];
+        if (p.z < 0) {
+          const depthAlpha = Math.max(0.12, (p.z + 1) * 0.4);
+          gctx.fillStyle = `rgba(${lb[0]}, ${lb[1]}, ${lb[2]}, ${depthAlpha})`;
+          gctx.beginPath();
+          gctx.arc(p.x, p.y, Math.max(0.9, p.size * 0.6), 0, Math.PI * 2);
+          gctx.fill();
+        }
+      }
+
+      // 4. Draw Front-Hemisphere Edges (z >= 0) - crisp, luminous network lines
+      for (let e = 0; e < edges.length; e++) {
+        const edge = edges[e];
+        const p1 = projected[edge.i];
+        const p2 = projected[edge.j];
+        const avgZ = (p1.z + p2.z) * 0.5;
+
+        if (avgZ >= 0) {
+          const frontAlpha = 0.25 + avgZ * 0.65;
+          gctx.strokeStyle = `rgba(${lf[0]}, ${lf[1]}, ${lf[2]}, ${edge.isInner ? frontAlpha * 0.45 : frontAlpha})`;
+          gctx.lineWidth = edge.isInner ? 0.9 : (1.1 + avgZ * 0.8);
+          gctx.beginPath();
+          gctx.moveTo(p1.x, p1.y);
+          gctx.lineTo(p2.x, p2.y);
+          gctx.stroke();
+        }
+      }
+
+      // 5. Draw Front-Hemisphere Nodes (z >= 0) - white core + glowing colored halo
+      for (let i = 0; i < TOTAL_NODES; i++) {
+        const p = projected[i];
+        if (p.z >= 0) {
+          const nodeAlpha = 0.55 + p.z * 0.45;
+          const nodeRadius = p.size * (1 + p.pulse * 0.12);
+
+          // Outer colored halo
+          gctx.fillStyle = `rgba(${lf[0]}, ${lf[1]}, ${lf[2]}, ${nodeAlpha * 0.45})`;
+          gctx.beginPath();
+          gctx.arc(p.x, p.y, nodeRadius * 2.2, 0, Math.PI * 2);
+          gctx.fill();
+
+          // Bright white center dot (matching reference photo)
+          gctx.fillStyle = currentTheme.dotCore;
+          gctx.beginPath();
+          gctx.arc(p.x, p.y, Math.max(1.4, nodeRadius), 0, Math.PI * 2);
+          gctx.fill();
+
+          // Radiant 4-point diamond flare for prominent junction hubs
+          if (p.isFlare && p.z > 0.15) {
+            draw4PointFlare(gctx, p.x, p.y, nodeRadius * 3.6, currentTheme.flareGlow);
+          }
+        }
+      }
+
+      // 6. Silhouette Atmospheric Rim Glow
+      const haloGrad = gctx.createRadialGradient(cx, cy, radius * 0.94, cx, cy, radius * 1.08);
+      haloGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      haloGrad.addColorStop(0.5, currentTheme.halo);
+      haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      gctx.fillStyle = haloGrad;
+      gctx.beginPath();
+      gctx.arc(cx, cy, radius * 1.08, 0, Math.PI * 2);
+      gctx.fill();
+
+      requestAnimationFrame(render3DGlobe);
+    }
+    requestAnimationFrame(render3DGlobe);
+
+    /* ══════════════════════════════════════════════════════════════════
+       COLOR SWITCHER CONTROLS (Blue, Pink, White, Black)
+       ══════════════════════════════════════════════════════════════════ */
+    function setGlobeTheme(colorKey) {
+      if (!GLOBE_THEMES[colorKey]) return;
+      activeThemeKey = colorKey;
+      currentTheme = GLOBE_THEMES[colorKey];
+
+      // Reverse rotation direction to the opposite side on mode change
+      reverseGlobeRotation();
+
+      // Update CSS theme accent variables
+      document.documentElement.style.setProperty('--cyan', currentTheme.primary);
+
+      // Update color pill buttons
+      document.querySelectorAll('.color-pill').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.color === colorKey);
+      });
+    }
+
+    document.querySelectorAll('.color-pill').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        setGlobeTheme(this.dataset.color);
+      });
+    });
+
+    /* ══════════════════════════════════════════════════════════════════
+       THREAT VECTOR SWITCHER — JS behaviour
+       ══════════════════════════════════════════════════════════════════ */
+    const ORDER = ['phishing', 'malware', 'fraud'];
+    const VECTORS = {
+      phishing: {
+        name: 'PHISHING',
+        eyebrow: 'DEFENSE VECTOR 01',
+        themeColor: 'blue',
+        lede: "Real-time neural heuristics intercepting zero-day malicious links, credential<br>harvesters, and deceptive impersonation across Email, WhatsApp, and Web."
+      },
+      malware: {
+        name: 'MALWARE',
+        eyebrow: 'DEFENSE VECTOR 02',
+        themeColor: 'pink',
+        lede: "Autonomous sandbox containment isolating fileless ransomware payloads,<br>trojanized attachments, and zero-click memory injection exploits instantly."
+      },
+      fraud: {
+        name: 'FRAUD',
+        eyebrow: 'DEFENSE VECTOR 03',
+        themeColor: 'white',
+        lede: "Cryptographic anomaly inspection neutralizing unauthorized payment manipulation,<br>invoice spoofing, fake banking gateways, and rogue wire alterations."
+      }
+    };
+
+    let currentVector = null;
+    const eyebrowLine = document.querySelector('.eyebrow .ent-line');
+    const titleLine = document.querySelector('h1.title .ent-line');
+    const ledeEl = document.querySelector('p.lede');
+    const btnL = document.querySelector('.planet-l');
+    const btnR = document.querySelector('.planet-r');
+    const labelL = document.querySelector('.label.label-l');
+    const labelR = document.querySelector('.label.label-r');
+
+    function showVector(next) {
+      if (!VECTORS[next] || next === currentVector) return;
+      currentVector = next;
+
+      // 1. Morph 3D Cyber Globe color theme
+      setGlobeTheme(VECTORS[next].themeColor);
+
+      // 2. Update texts
+      eyebrowLine.textContent = VECTORS[next].eyebrow;
+      titleLine.textContent = VECTORS[next].name;
+      ledeEl.innerHTML = VECTORS[next].lede;
+
+      // 3. Rest = ORDER minus next; slot L gets rest[0], slot R gets rest[1]
+      const rest = ORDER.filter(function(v){ return v !== next; });
+      const leftTarget = rest[0];
+      const rightTarget = rest[1];
+
+      // Slot L update
+      btnL.dataset.vector = leftTarget;
+      btnL.setAttribute('aria-label', 'Activate ' + VECTORS[leftTarget].name);
+      btnL.querySelectorAll('img').forEach(function(img) {
+        img.classList.toggle('is-shown', img.dataset.vector === leftTarget);
+      });
+      labelL.textContent = VECTORS[leftTarget].name;
+      labelL.style.color = GLOBE_THEMES[VECTORS[leftTarget].themeColor].primary;
+
+      // Slot R update
+      btnR.dataset.vector = rightTarget;
+      btnR.setAttribute('aria-label', 'Activate ' + VECTORS[rightTarget].name);
+      btnR.querySelectorAll('img').forEach(function(img) {
+        img.classList.toggle('is-shown', img.dataset.vector === rightTarget);
+      });
+      labelR.textContent = VECTORS[rightTarget].name;
+      labelR.style.color = GLOBE_THEMES[VECTORS[rightTarget].themeColor].primary;
+    }
+
+    [btnL, btnR].forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        showVector(this.dataset.vector);
+      });
+    });
+
+    /* ══════════════════════════════════════════════════════════════════
+       BURGER MENU — JS behaviour
+       ══════════════════════════════════════════════════════════════════ */
+    const navrow = document.querySelector('.navrow');
+    const burgerBtn = document.querySelector('.burger');
+    const siteNav = document.getElementById('site-nav');
+
+    function setMenuOpen(open) {
+      navrow.dataset.open = open ? 'true' : 'false';
+      burgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burgerBtn.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    }
+    setMenuOpen(false);
+
+    burgerBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isOpen = navrow.dataset.open === 'true';
+      setMenuOpen(!isOpen);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (navrow.dataset.open === 'true' && !navrow.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && navrow.dataset.open === 'true') {
+        setMenuOpen(false);
+        burgerBtn.focus();
+      }
+    });
+
+    siteNav.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        if (navrow.dataset.open === 'true') {
+          setMenuOpen(false);
+        }
+      });
+    });
+
+    // Establish initial state
+    showVector('phishing');
+  </script>
+</body>
+</html>
